@@ -1,6 +1,6 @@
 (function( $ ) {
   
-  $.pie = function( targetCanvasID, colors, percentages, totalRadius, thickness, outlineColor, initialRotation, centerPoint ) {
+  $.pie = function( targetCanvasID, colors, percentages, totalRadius, thickness, outlineColor, initialRotation, centerPoint, animate ) {
 
       $.pie.vars.canvasID = targetCanvasID;
       $.pie.vars.colors = colors;
@@ -9,13 +9,25 @@
       $.pie.vars.outlineColor = outlineColor;
       $.pie.vars.rotation = initialRotation;
       $.pie.vars.centerPoint = centerPoint;
+      $.pie.vars.shouldAnimate = animate;
       
       $.pie.vars.drawingSurface = document.getElementById( $.pie.vars.canvasID );
       
       if( $.pie.vars.drawingSurface.getContext ){
         
         $.pie.vars.drawingContext = $.pie.vars.drawingSurface.getContext( '2d' );
-        $.pie.update( percentages );
+        
+        $.pie.vars.percentages = percentages;
+        
+        $.pie.vars.drawingContext.translate($.pie.vars.centerPoint[0], $.pie.vars.centerPoint[1]);
+        //to rotate the canvas we need to convert the input degrees into radians
+        $.pie.vars.drawingContext.rotate( $.pie.vars.rotation * (Math.PI / 180) );
+        
+        if($.pie.vars.shouldAnimate){
+          $.pie.animatedPie();
+        } else {
+          $.pie.update( $.pie.vars.percentages );
+        }
         
       }
       
@@ -34,11 +46,12 @@
     drawingContext: null,
     pieRadians: null,
     centerPoint: null,
+    animationValues: [0, 100],
+    shouldAnimate: false, 
   }
   
   $.pie.update = function( percentages ) {
     
-    $.pie.vars.percentages = percentages;
     $.pie.vars.pieRadians = $.pie.getRadians( percentages );
     $.pie.drawLines( $.pie.vars.colors , $.pie.vars.pieRadians );
     
@@ -67,7 +80,7 @@
   $.pie.drawLines = function( colors, radians ) {
     
     if(radians.length > 1){
-      $.pie.vars.drawingContext.clearRect(0, 0, $.pie.vars.drawingSurface.width, $.pie.vars.drawingSurface.height);
+      //$.pie.vars.drawingContext.clearRect(0, 0, $.pie.vars.drawingSurface.width, $.pie.vars.drawingSurface.height);
     } else {
       return;
     }
@@ -75,8 +88,6 @@
     var radiansSoFar = 0;
     var i = 0;
     var total = radians.length;
-    
-    $.pie.vars.drawingContext.translate($.pie.vars.centerPoint[0], $.pie.vars.centerPoint[1]);
     
     for(i; i < total; i++){
       
@@ -114,7 +125,24 @@
       //specific to BTCMobile site
       $.pie.drawInnerOutline();
       $.pie.drawInnerCircle();
+      // end of specific to btc site
       
+    }
+    
+  }
+  
+  $.pie.animatedPie = function(){
+    
+    if($.pie.vars.animationValues[0] < $.pie.vars.percentages[0]){
+      console.log('animate' + " " + $.pie.vars.animationValues[0] + " " +  $.pie.vars.percentages[0]);
+      $.pie.update([$.pie.vars.animationValues[0], $.pie.vars.animationValues[1]]);
+      $.pie.vars.animationValues[0] += 1;
+      $.pie.vars.animationValues[1] -= 1;
+      setTimeout('$.pie.animatedPie()', 1);
+    } else {
+      $.pie.vars.animationValues[0] = 0;
+      $.pie.vars.animationValues[1] = 100;
+      return;
     }
     
   }
