@@ -82,7 +82,6 @@
     
     for(i; i < total; i++){
       
-      $.pie.vars.drawingContext.fillStyle = $.pie.vars.colors[i];
       $.pie.vars.drawingContext.beginPath();
       
       $.pie.vars.drawingContext.moveTo(0, 0);
@@ -99,12 +98,23 @@
       $.pie.vars.drawingContext.lineTo(0, 0);
       
       $.pie.vars.drawingContext.closePath();
-      $.pie.vars.drawingContext.stroke();
+      
+      //$.pie.vars.drawingContext.stroke();
+      
+      //$.pie.vars.drawingContext.fillStyle = $.pie.vars.colors[i];
+      var grad = $.pie.vars.drawingContext.createLinearGradient(0, 0, 0, $.pie.vars.drawingSurface.height / 2);
+      grad.addColorStop(0, $.pie.vars.colors[i][0]);
+      grad.addColorStop(0.5, $.pie.vars.colors[i][1]);
+      grad.addColorStop(1, $.pie.vars.colors[i][2]);
+      $.pie.vars.drawingContext.fillStyle = grad;
+      
       $.pie.vars.drawingContext.fill();
       
     }
     
   }
+  
+  //methods specific to BTCMobie Site.
   
   
 })( jQuery );
