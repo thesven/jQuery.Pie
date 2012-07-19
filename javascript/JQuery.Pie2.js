@@ -5,9 +5,9 @@
       
       var Pie = {
         
-        update: function(options, percentages){
+        update: function(percentages){
           var radians = this.getRadians(percentages);
-          this.drawLines(options, radians);
+          Pie.drawLines(radians);
         },
         
         getRadians: function(percentages){
@@ -30,7 +30,7 @@
           
         }, 
         
-        drawLines: function(options, radians){
+        drawLines: function(radians){
           
           var radiansSoFar = 0;
           var i = 0;
@@ -38,87 +38,89 @@
 
           for(i; i < total; i++){
 
-            options.drawingContext.beginPath();
+            o.drawingContext.beginPath();
 
-            options.drawingContext.moveTo(0, 0);
-            options.drawingContext.lineTo(Math.sin(radiansSoFar * Math.PI) * options.totalRadius, Math.cos(radiansSoFar * Math.PI) * options.totalRadius);
+            o.drawingContext.moveTo(0, 0);
+            o.drawingContext.lineTo(Math.sin(radiansSoFar * Math.PI) * o.totalRadius, Math.cos(radiansSoFar * Math.PI) * o.totalRadius);
 
             var n = 0;
             var totalRads = radians[i];
             for(n; n < totalRads; n+= .00005){
-              options.drawingContext.lineTo(Math.sin((radiansSoFar+n) * Math.PI) * options.totalRadius, Math.cos((radiansSoFar+n) * Math.PI) * options.totalRadius);
+              o.drawingContext.lineTo(Math.sin((radiansSoFar+n) * Math.PI) * o.totalRadius, Math.cos((radiansSoFar+n) * Math.PI) * o.totalRadius);
             }
 
             radiansSoFar += radians[i];
 
-            options.drawingContext.lineTo(0, 0);
+            o.drawingContext.lineTo(0, 0);
 
-            options.drawingContext.closePath();
+            o.drawingContext.closePath();
 
-            options.drawingContext.strokeStyle = options.outlineColor;
-            options.drawingContext.lineWidth = options.thickness;
+            o.drawingContext.strokeStyle = o.outlineColor;
+            o.drawingContext.lineWidth = o.thickness;
 
-            options.drawingContext.stroke();
+            o.drawingContext.stroke();
 
             //options.drawingContext.fillStyle = options.colors[i];
-            var grad = options.drawingContext.createLinearGradient(0, 0, 0, options.drawingSurface.height / 2);
-            grad.addColorStop(0, options.colors[i][0]);
-            grad.addColorStop(0.5, options.colors[i][1]);
-            grad.addColorStop(1, options.colors[i][2]);
-            options.drawingContext.fillStyle = grad;
+            var grad = o.drawingContext.createLinearGradient(0, 0, 0, o.drawingSurface.height / 2);
+            grad.addColorStop(0, o.colors[i][0]);
+            grad.addColorStop(0.5, o.colors[i][1]);
+            grad.addColorStop(1, o.colors[i][2]);
+            o.drawingContext.fillStyle = grad;
 
-            options.drawingContext.fill();
+            o.drawingContext.fill();
 
             //specific to BTCMobile site
-            this.drawInnerOutline(options);
-            this.drawInnerCircle(options);
+            Pie.drawInnerOutline();
+            Pie.drawInnerCircle();
             // end of specific to btc site
 
           }
           
         },
         
-        animatedPie: function(options){
+        animatedPie: function(){
           
-          if(options.animationValues[0] < options.percentages[0]){
-            console.log('animate' + " " + options.animationValues[0] + " " +  options.percentages[0]);
-            this.update(options, options.animationValues);
-            options.animationValues[0] += 1;
-            options.animationValues[1] -= 1;
+          var min = $canvas.data('minAnim');
+          var max = $canvas.data('maxAnim');
+          
+          if($canvas.data('minAnim') < o.percentages[0]){
+            Pie.update([min, max]);
+            min += 1;
+            max -= 1;
+            $canvas.data('minAnim', min);
+            $canvas.data('maxAnim', max);
             setTimeout(function(){
-              console.log(options);
-              Pie.animatedPie(options);
-            }, 30);
+              Pie.animatedPie();
+            }, o.animationSpeed);
           } else {
-            options.animationValues[0] = 0;
-            options.animationValues[1] = 100;
-            return;
+            $canvas.data('minAnim', 0);
+            $canvas.data('maxAnim', 100);
           }
           
         },
         
-        drawInnerOutline: function(options){
+        drawInnerOutline: function(){
           
-          options.drawingContext.moveTo(0, 0);
-          options.drawingContext.beginPath();
-          options.drawingContext.arc(0, 0, options.totalRadius - 20, 0, Math.PI * 2, false);
-          options.drawingContext.closePath();
+          o.drawingContext.moveTo(0, 0);
+          o.drawingContext.beginPath();
+          o.drawingContext.arc(0, 0, o.totalRadius - 20, 0, Math.PI * 2, false);
+          o.drawingContext.closePath();
 
-          options.drawingContext.strokeStyle = options.outlineColor;
-          options.drawingContext.lineWidth = options.thickness;
-          options.drawingContext.stroke();
+          o.drawingContext.strokeStyle = o.outlineColor;
+          o.drawingContext.lineWidth = o.thickness;
+          o.drawingContext.stroke();
           
         },
         
-        drawInnerCircle: function(options){
+        drawInnerCircle: function(){
           
-          options.drawingContext.moveTo(0, 0);
-          options.drawingContext.beginPath();
-          options.drawingContext.arc(0, 0, options.totalRadius / 4, 0, Math.PI * 2, false);
-          options.drawingContext.closePath();
+          o.drawingContext.moveTo(0, 0);
+          o.drawingContext.beginPath();
+          o.drawingContext.arc(0, 0, o.totalRadius / 4, 0, Math.PI * 2, false);
+          o.drawingContext.closePath();
 
-          options.drawingContext.fillStyle = options.outlineColor;
-          options.drawingContext.fill();
+          o.drawingContext.fillStyle = o.outlineColor;
+          o.drawingContext.fill();
           
         }
         
@@ -128,12 +130,17 @@
       //get the percentage from the data attribute
       var percentage = self.data('percent');
       o.percentages = [percentage, 100 - percentage];
-      console.log(o.percentages);
       
       //create the canvas
       var $canvas = $('<canvas>');
       $canvas[0].width = 400;
       $canvas[0].height = 400;
+      $canvas
+        .data('minAnim', 0)
+        .data('maxAnim', 100);
+      $canvas
+        .css('width', '100%')
+        .css('height', '100%');
       self.append($canvas);
       
       var context = $canvas[0].getContext('2d');
@@ -148,9 +155,9 @@
       
       //init
       if(o.animate){
-        Pie.animatedPie(o);
+        Pie.animatedPie();
       } else {
-        Pie.update(o, o.percentages);
+        Pie.update(o.percentages);
       }    
       
     });
@@ -167,8 +174,8 @@
     drawingContext: null,
     canvasDimensions: [400, 400],
     centerPoint: [200, 200],
-    animationValues: [0, 100],
-    animate: true
+    animate: true,
+    animationSpeed: 30
   };
   
 })(jQuery);
