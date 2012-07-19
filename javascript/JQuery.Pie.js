@@ -78,8 +78,6 @@
     
     $.pie.vars.drawingContext.translate($.pie.vars.centerPoint[0], $.pie.vars.centerPoint[1]);
     
-    $.pie.vars.drawingContext.strokeStyle = $.pie.vars.outlineColor;
-    
     for(i; i < total; i++){
       
       $.pie.vars.drawingContext.beginPath();
@@ -99,7 +97,10 @@
       
       $.pie.vars.drawingContext.closePath();
       
-      //$.pie.vars.drawingContext.stroke();
+      $.pie.vars.drawingContext.strokeStyle = $.pie.vars.outlineColor;
+      $.pie.vars.drawingContext.lineWidth = $.pie.vars.thickness;
+      
+      $.pie.vars.drawingContext.stroke();
       
       //$.pie.vars.drawingContext.fillStyle = $.pie.vars.colors[i];
       var grad = $.pie.vars.drawingContext.createLinearGradient(0, 0, 0, $.pie.vars.drawingSurface.height / 2);
@@ -110,11 +111,39 @@
       
       $.pie.vars.drawingContext.fill();
       
+      //specific to BTCMobile site
+      $.pie.drawInnerOutline();
+      $.pie.drawInnerCircle();
+      
     }
     
   }
   
   //methods specific to BTCMobie Site.
+  $.pie.drawInnerOutline = function(){
+    
+    $.pie.vars.drawingContext.moveTo(0, 0);
+    $.pie.vars.drawingContext.beginPath();
+    $.pie.vars.drawingContext.arc(0, 0, $.pie.vars.totalRadius - 20, 0, Math.PI * 2, false);
+    $.pie.vars.drawingContext.closePath();
+    
+    $.pie.vars.drawingContext.strokeStyle = $.pie.vars.outlineColor;
+    $.pie.vars.drawingContext.lineWidth = $.pie.vars.thickness;
+    $.pie.vars.drawingContext.stroke();
+    
+  }
+  
+  $.pie.drawInnerCircle = function(){
+    
+    $.pie.vars.drawingContext.moveTo(0, 0);
+    $.pie.vars.drawingContext.beginPath();
+    $.pie.vars.drawingContext.arc(0, 0, $.pie.vars.totalRadius / 4, 0, Math.PI * 2, false);
+    $.pie.vars.drawingContext.closePath();
+    
+    $.pie.vars.drawingContext.fillStyle = $.pie.vars.outlineColor;
+    $.pie.vars.drawingContext.fill();
+    
+  }
   
   
 })( jQuery );
